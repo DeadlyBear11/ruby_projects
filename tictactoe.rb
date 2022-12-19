@@ -21,9 +21,7 @@ def set_players_names
     players[index] = Player.new(gets.chomp)
     puts "Player #{index + 1} is #{players[index].name}."
   end
-  puts ' '
-  puts "Let's start the game!"
-  puts ' '
+  puts "\nLet's start the game!\n"
   players
 end
 
@@ -42,8 +40,7 @@ def play_turn(game, board)
   game.players.each do |player|
     puts "It's #{player.name}'s turn."
     puts board
-    puts ' '
-    print 'Select a number to place your symbol: '
+    print "\nSelect a number to place your symbol: "
     selection = gets.chomp
     puts "Your selection was: #{selection}."
     update_board(board, selection)
