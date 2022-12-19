@@ -27,22 +27,37 @@ def set_players_names
   players
 end
 
+def update_board(board, selection)
+  board.each_with_index do |level, index|
+    arr = level.chars
+    next unless arr.include?(selection.to_s)
+
+    arr.fill('X', arr.find_index(selection.to_s), 1)
+    board[index] = arr.join('')
+  end
+  board
+end
+
+def play_turn(game, board)
+  game.players.each do |player|
+    puts "It's #{player.name}'s turn."
+    puts board
+    puts ' '
+    print 'Select a number to place your symbol: '
+    selection = gets.chomp
+    puts "Your selection was: #{selection}."
+    update_board(board, selection)
+  end
+  board
+end
+
 # Create new game and two players.
 game = Game.new(set_players_names)
 
 # Create the board.
 board = ['1|2|3', '4|5|6', '7|8|9']
 
-# Game Loop
-game.players.each do |player|
-  puts "It's #{player.name}'s turn."
-  puts board
-  puts ' '
-  print 'Select a number to place your symbol: '
-  selection = gets.chomp
-  puts "Your selection was: #{selection}."
-end
-
+play_turn(game, board)
 # Check for a win.
 # If there's a win:
 # display board with past selections on it.
