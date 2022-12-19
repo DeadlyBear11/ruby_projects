@@ -40,19 +40,22 @@ end
 
 def play_turn(game, board)
   game.players.each do |player|
-    puts "It's #{player.name}'s turn."
     puts board
-    print "\nSelect a number to place your symbol: "
+    if hor_win?(board)
+      puts 'You win! Congratulations!'
+      break
+    end
+
+    print "#{player.name}, select a number to place your symbol: "
     selection = gets.chomp
     update_board(board, selection, game, player.name)
+    puts ' '
   end
   board
 end
 
 def play_game(game, board)
-  while true
-    play_turn(game, board)
-  end
+  play_turn(game, board) until hor_win?(board)
 end
 
 # Create new game and two players.
@@ -61,7 +64,21 @@ game = Game.new(set_players_names)
 # Create the board.
 board = ['1|2|3', '4|5|6', '7|8|9']
 
+# Winning combinations.
+def hor_win?(board)
+  win = false
+
+  hor_win = %w[O|O|O X|X|X]
+
+  hor_win.each do |combo|
+    win = board.include?(combo)
+  end
+
+  win
+end
+
 play_game(game, board)
+
 # Check for a win.
 # If there's a win:
 # display board with past selections on it.
