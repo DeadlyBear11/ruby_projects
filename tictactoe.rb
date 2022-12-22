@@ -28,7 +28,7 @@ class Game
   def ask_names
     @players = []
     2.times do
-      print "Typle player's name: "
+      print "Type player's name: "
       @players.push(gets.chomp)
     end
     @players
@@ -109,30 +109,24 @@ class Game
   end
 
   def no_winner
+    new_board = []
     @board.each do |level|
       level.each_char do |char|
-        plays = []
-        (1..9).each do |num|
-          box = char.to_i
-          if box != 0
-            play = box == num
-            plays.push(play)
-          end
-        end
-        @tie = plays.include?()
+        new_board.push(char.to_i) if char != '|'
       end
     end
+    @tie = new_board.eql?(Array.new(9, 0))
+    puts "It's a tie!" if @tie
     @tie
   end
 
   def round_loop(player1, player2)
     players = [player1, player2]
-    until @win
+    until @tie || @win
       players.each do |player|
         @win = check_win
-        break if @win
-
-        no_winner
+        @tie = no_winner
+        break if @tie || @win
 
         edit_board(player)
         puts ' '
