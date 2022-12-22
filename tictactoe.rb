@@ -9,7 +9,9 @@ class Player
 
   def choose_number(_game)
     print "#{@name}, select a number to place your symbol: "
-    gets.chomp.to_s
+    number = gets.chomp.to_s
+    puts '________________________________________________'
+    number
   end
 end
 
@@ -53,7 +55,9 @@ class Game
 
     @win ||= ver_win
 
-    puts 'Someone won!' if @win
+    @win ||= cross_win
+
+    puts 'Congrats! You win!' if @win
     @win
   end
 
@@ -88,6 +92,18 @@ class Game
       end
     end
     @win = new_cols.value?(3)
+    @win
+  end
+
+  def cross_win
+    crosses = []
+    crosses[0] = @board[0][0] + @board[1][2] + @board[2][4]
+    crosses[1] = @board[0][4] + @board[1][2] + @board[2][0]
+
+    crosses.each do |cross|
+      @win = cross.include?('XXX') || cross.include?('OOO')
+      break if @win
+    end
     @win
   end
 
