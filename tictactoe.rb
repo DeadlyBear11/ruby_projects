@@ -19,6 +19,7 @@ class Game
   def initialize
     @board = %w[1|2|3 4|5|6 7|8|9]
     @win = false
+    @tie = false
     @symbols = %w[X O]
   end
 
@@ -107,12 +108,31 @@ class Game
     @win
   end
 
+  def no_winner
+    @board.each do |level|
+      level.each_char do |char|
+        plays = []
+        (1..9).each do |num|
+          box = char.to_i
+          if box != 0
+            play = box == num
+            plays.push(play)
+          end
+        end
+        @tie = plays.include?()
+      end
+    end
+    @tie
+  end
+
   def round_loop(player1, player2)
     players = [player1, player2]
     until @win
       players.each do |player|
         @win = check_win
         break if @win
+
+        no_winner
 
         edit_board(player)
         puts ' '
