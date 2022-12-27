@@ -15,9 +15,11 @@ class Game
   def initialize
     @turns = 12
     @colors = %w[red blue green yellow pink black]
+    @win = false
+    @turn = 1
   end
 
-  attr_accessor :turns, :colors
+  attr_accessor :turns, :colors, :win, :turn
 
   def welcome
     puts '|==========================|'
@@ -31,7 +33,39 @@ class Game
   end
 
   def compare(code, guess)
-    guess == code
+    code == guess
+  end
+
+  def right_pos(code, guess)
+    match = 0
+    code.each_index { |i| match += 1 if code[i] == guess[i] }
+    match
+  end
+
+  def included(code, guess, match)
+    includes = 0
+    guess.each { |g_color| includes +=1 if code.include?(g_color)}
+    includes -= match
+    includes
+  end
+
+  def feedback(code, guess)
+    match = right_pos(code, guess)
+    puts "Colors in the right position: #{match}."
+    puts "Colors in the wrong position: #{included(code, guess, match)}."
+  end
+
+  def turns_loop(player, code)
+    until win || turn > 12
+      puts '___________________________________________________________'
+      puts "This is turn number #{turn} out of 12."
+      guess = player.take_guess
+      @win = compare(code, guess)
+      @turn += 1
+      puts 'Congratulations! You win!' if win
+      puts "I'm sorry, you ran out of guesses." if turn > 12
+      feedback(code, guess) unless win || turn > 12
+    end
   end
 end
 
@@ -54,7 +88,6 @@ class Player
   def take_guess
     print 'Type your guess (Each color separated by a comma): '
     @guess = gets.chomp.gsub!(' ', '').split(',')
-    p @guess
   end
 end
 
@@ -64,14 +97,4 @@ game.instr_player_guess
 computer = Computer.new
 code = computer.create_code(game)
 player = Player.new
-
-win = false
-turn = 0
-
-until win || turn >= 12
-  guess = player.take_guess
-  win = game.compare(code, guess)
-  turn += 1
-  puts 'Congratulations! You win!' if win
-  puts "I'm sorry, you ran out of guesses." if turn >= 12
-end
+game.turns_loop(player, code)
