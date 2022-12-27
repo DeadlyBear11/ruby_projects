@@ -29,6 +29,10 @@ class Game
     puts 'Guess the 4 color code typing the names of the colors separated by commas.'
     puts 'The possible colors are red, blue, green, yellow, pink and black.'
   end
+
+  def compare(code, guess)
+    guess == code
+  end
 end
 
 class Computer
@@ -48,7 +52,7 @@ class Player
   attr_accessor :guess
 
   def take_guess
-    print 'Type your your guess (Each color separated by a comma): '
+    print 'Type your guess (Each color separated by a comma): '
     @guess = gets.chomp.gsub!(' ', '').split(',')
     p @guess
   end
@@ -58,6 +62,16 @@ game = Game.new
 game.welcome
 game.instr_player_guess
 computer = Computer.new
-computer.create_code(game)
+code = computer.create_code(game)
 player = Player.new
-player.take_guess
+
+win = false
+turn = 0
+
+until win || turn >= 12
+  guess = player.take_guess
+  win = game.compare(code, guess)
+  turn += 1
+  puts 'Congratulations! You win!' if win
+  puts "I'm sorry, you ran out of guesses." if turn >= 12
+end
