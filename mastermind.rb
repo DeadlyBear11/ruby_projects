@@ -11,6 +11,8 @@
 # Create class player
 # Player tries to guess code.
 
+require 'pry-byebug'
+
 class Game
   def initialize
     @turns = 12
@@ -37,22 +39,38 @@ class Game
   end
 
   def right_pos(code, guess)
-    match = 0
-    code.each_index { |i| match += 1 if code[i] == guess[i] }
+    match = []
+    code.each_index do |i|
+      match.push(code[i]) if code[i] == guess[i]
+    end
+    puts "Match: #{match}."
     match
   end
 
-  def included(code, guess, match)
-    includes = 0
-    guess.each { |g_color| includes +=1 if code.include?(g_color)}
-    includes -= match
-    includes
+  def wrong_pos(code, guess, match)
+    new_code = []
+    new_guess = []
+    code.each { |c_color| new_code.push(c_color) }
+    guess.each { |g_color| new_guess.push(g_color) }
+
+    match.each do |m_color|
+      new_code.delete(m_color)
+      new_guess.delete(m_color)
+    end
+
+    count = 0
+    new_code.each do |c_color|
+      new_guess.each do |g_color|
+        count += 1 if c_color == g_color
+      end
+    end
+    count
   end
 
   def feedback(code, guess)
     match = right_pos(code, guess)
-    puts "Colors in the right position: #{match}."
-    puts "Colors in the wrong position: #{included(code, guess, match)}."
+    puts "Colors in the right position: #{match.length}."
+    puts "Colors in the wrong position: #{wrong_pos(code, guess, match)}."
   end
 
   def turns_loop(player, code)
@@ -76,7 +94,7 @@ class Computer
 
   def create_code(game)
     @code = game.colors.sample(4)
-    p @code
+    p code
   end
 end
 
