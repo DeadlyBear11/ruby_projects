@@ -34,6 +34,11 @@ class Game
     puts 'The possible colors are red, blue, green, yellow, pink and black.'
   end
 
+  def instr_computer_guess
+    puts 'Create the 4 color code typing the names of the colors separated by commas.'
+    puts 'The possible colors are red, blue, green, yellow, pink and black.'
+  end
+
   def compare(code, guess)
     code == guess
   end
@@ -43,16 +48,12 @@ class Game
     code.each_index do |i|
       match.push(code[i]) if code[i] == guess[i]
     end
-    puts "Match: #{match}."
     match
   end
 
   def wrong_pos(code, guess, match)
-    new_code = []
-    new_guess = []
-    code.each { |c_color| new_code.push(c_color) }
-    guess.each { |g_color| new_guess.push(g_color) }
-
+    new_code = code.map(&:clone)
+    new_guess = guess.map(&:clone)
     match.each do |m_color|
       new_code.delete(m_color)
       new_guess.delete(m_color)
@@ -60,9 +61,7 @@ class Game
 
     count = 0
     new_code.each do |c_color|
-      new_guess.each do |g_color|
-        count += 1 if c_color == g_color
-      end
+      new_guess.each { |g_color| count += 1 if c_color == g_color }
     end
     count
   end
@@ -80,39 +79,72 @@ class Game
       guess = player.take_guess
       @win = compare(code, guess)
       @turn += 1
-      puts 'Congratulations! You win!' if win
-      puts "I'm sorry, you ran out of guesses." if turn > 12
+      puts 'Victory!' if win
+      puts 'Defeat. No more guesses left.' if turn > 12
       feedback(code, guess) unless win || turn > 12
     end
+  end
+
+  def choose_role
+    puts "Type 'guess' if you want to guess a computer generated code."
+    puts "Type 'code' if you want to create a code and the computer will try to guess it."
+    print 'Your answer: '
+    gets.chomp
   end
 end
 
 class Computer
   def initialize; end
 
-  attr_accessor :code
+  attr_accessor :code, :guess
 
   def create_code(game)
     @code = game.colors.sample(4)
-    p code
+  end
+
+  def take_guess
+    @guess = %w[red blue green yellow pink black].sample(4)
+    puts "Computer guessed: #{guess}."
+    guess
   end
 end
 
 class Player
   def initialize; end
 
-  attr_accessor :guess
+  attr_accessor :code, :guess
 
   def take_guess
     print 'Type your guess (Each color separated by a comma): '
     @guess = gets.chomp.gsub!(' ', '').split(',')
   end
+
+  def create_code
+    print 'Your code: '
+    @code = gets.chomp.gsub!(' ', '').split(',')
+  end
+end
+
+def player_guesses(game, computer, player)
+  game.instr_player_guess
+  code = computer.create_code(game)
+  game.turns_loop(player, code)
+end
+
+def computer_guesses(game, computer, player)
+  game.instr_computer_guess
+  code = player.create_code
+  game.turns_loop(computer, code)
+end
+
+def game_mode(role, game, computer, player)
+  player_guesses(game, computer, player) if role == 'guess'
+  computer_guesses(game, computer, player) if role == 'code'
 end
 
 game = Game.new
-game.welcome
-game.instr_player_guess
 computer = Computer.new
-code = computer.create_code(game)
 player = Player.new
-game.turns_loop(player, code)
+game.welcome
+role = game.choose_role
+game_mode(role, game, computer, player)
