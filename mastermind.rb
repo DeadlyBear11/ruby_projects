@@ -69,19 +69,26 @@ class Game
   def feedback(code, guess)
     match = right_pos(code, guess)
     puts "Colors in the right position: #{match.length}."
-    puts "Colors in the wrong position: #{wrong_pos(code, guess, match)}."
+    found = wrong_pos(code, guess, match)
+    puts "Colors in the wrong position: #{found}."
+    [match.length, found]
   end
 
   def turns_loop(player, code)
+    info = false
     until win || turn > 12
       puts '___________________________________________________________'
       puts "This is turn number #{turn} out of 12."
-      guess = player.take_guess
+      if info
+        guess = player.guess_with_fb(info)
+      else
+        guess = player.take_guess
+      end
       @win = compare(code, guess)
       @turn += 1
       puts 'Victory!' if win
       puts 'Defeat. No more guesses left.' if turn > 12
-      feedback(code, guess) unless win || turn > 12
+      info = feedback(code, guess) unless win || turn > 12
     end
   end
 
@@ -94,9 +101,11 @@ class Game
 end
 
 class Computer
-  def initialize; end
+  def initialize
+    @combos = []
+  end
 
-  attr_accessor :code, :guess
+  attr_accessor :code, :guess, :combos
 
   def create_code(game)
     @code = game.colors.sample(4)
@@ -104,6 +113,25 @@ class Computer
 
   def take_guess
     @guess = %w[red blue green yellow pink black].sample(4)
+    puts "Computer guessed: #{guess}."
+    guess
+  end
+
+  def guess_combos
+    %w[red blue green yellow pink black].permutation(4) { |c| @combos.push(c) }
+  end
+
+  def guess_with_fb(info)
+    match = info[0]
+    found = info[1]
+
+    if match == 1
+      delete some stuff on combos
+    end
+    if found == 1
+      delete some stuff on combos
+    end
+
     puts "Computer guessed: #{guess}."
     guess
   end
@@ -119,6 +147,10 @@ class Player
     @guess = gets.chomp.gsub!(' ', '').split(',')
   end
 
+  def guess_with_fb(info)
+    take_guess
+  end
+
   def create_code
     print 'Your code: '
     @code = gets.chomp.gsub!(' ', '').split(',')
@@ -132,6 +164,7 @@ def player_guesses(game, computer, player)
 end
 
 def computer_guesses(game, computer, player)
+  computer.guess_combos
   game.instr_computer_guess
   code = player.create_code
   game.turns_loop(computer, code)
