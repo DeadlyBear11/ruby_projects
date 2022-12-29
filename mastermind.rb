@@ -79,11 +79,7 @@ class Game
     until win || turn > 12
       puts '___________________________________________________________'
       puts "This is turn number #{turn} out of 12."
-      if info
-        guess = player.guess_with_fb(info)
-      else
-        guess = player.take_guess
-      end
+      guess = info ? player.guess_with_fb(info) : player.take_guess
       @win = compare(code, guess)
       @turn += 1
       puts 'Victory!' if win
@@ -121,19 +117,35 @@ class Computer
     %w[red blue green yellow pink black].permutation(4) { |c| @combos.push(c) }
   end
 
+  def random_color
+    %w[red blue green yellow pink black].sample
+  end
+
   def guess_with_fb(info)
     match = info[0]
     found = info[1]
 
-    if match == 1
-      delete some stuff on combos
+    new_guess = [guess[0], guess[1], guess[2], random_color] if match == 3
+    if match == 2
+      new_guess = [guess[0], guess[1], random_color, random_color] if found.zero?
+      new_guess = [guess[0], guess[1], random_color, guess[2]] if found == 1
+      new_guess = [guess[0], guess[1], guess[3], guess[2]] if found == 2
     end
-    if found == 1
-      delete some stuff on combos
+    if match == 1
+      new_guess = [guess[0], random_color, random_color, random_color] if found.zero?
+      new_guess = [guess[0], random_color, guess[1], random_color] if found == 1
+      new_guess = [guess[0], guess[3], random_color, guess[1]] if found == 2
+    end
+    if match.zero?
+      new_guess = %w[red blue green yellow pink black].sample(4) if found.zero?
+      new_guess = [guess[3], random_color, random_color, random_color] if found == 1
+      new_guess = [guess[2], guess[3], random_color, random_color] if found == 2
+      new_guess = [random_color, guess[2], guess[3], guess[1]] if found == 3
+      new_guess = @guess.reverse if found == 4
     end
 
-    puts "Computer guessed: #{guess}."
-    guess
+    puts "Computer guessed: #{new_guess}."
+    new_guess
   end
 end
 
@@ -147,7 +159,7 @@ class Player
     @guess = gets.chomp.gsub!(' ', '').split(',')
   end
 
-  def guess_with_fb(info)
+  def guess_with_fb(_)
     take_guess
   end
 
