@@ -68,10 +68,7 @@ class Game
 
   def feedback(code, guess)
     match = right_pos(code, guess)
-    puts "Colors in the right position: #{match.length}."
-    found = wrong_pos(code, guess, match)
-    puts "Colors in the wrong position: #{found}."
-    [match.length, found]
+    [match.length, wrong_pos(code, guess, match)]
   end
 
   def turns_loop(player, code)
@@ -79,12 +76,14 @@ class Game
     until win || turn > 12
       puts '___________________________________________________________'
       puts "This is turn number #{turn} out of 12."
-      guess = info ? player.guess_with_fb(info) : player.take_guess
+      guess = info ? player.guess_with_fb(info, self) : player.take_guess
       @win = compare(code, guess)
       @turn += 1
       puts 'Victory!' if win
       puts 'Defeat. No more guesses left.' if turn > 12
       info = feedback(code, guess) unless win || turn > 12
+      puts "Colors in the right position: #{info[0]}."
+      puts "Colors in the wrong position: #{info[1]}."
     end
   end
 
@@ -117,33 +116,41 @@ class Computer
     %w[red blue green yellow pink black].permutation(4) { |c| @combos.push(c) }
   end
 
-  def random_color
-    %w[red blue green yellow pink black].sample
-  end
-
-  def guess_with_fb(info)
-    match = info[0]
-    found = info[1]
-
-    new_guess = [guess[0], guess[1], guess[2], random_color] if match == 3
-    if match == 2
-      new_guess = [guess[0], guess[1], random_color, random_color] if found.zero?
-      new_guess = [guess[0], guess[1], random_color, guess[2]] if found == 1
-      new_guess = [guess[0], guess[1], guess[3], guess[2]] if found == 2
-    end
-    if match == 1
-      new_guess = [guess[0], random_color, random_color, random_color] if found.zero?
-      new_guess = [guess[0], random_color, guess[1], random_color] if found == 1
-      new_guess = [guess[0], guess[3], random_color, guess[1]] if found == 2
-    end
-    if match.zero?
-      new_guess = %w[red blue green yellow pink black].sample(4) if found.zero?
-      new_guess = [guess[3], random_color, random_color, random_color] if found == 1
-      new_guess = [guess[2], guess[3], random_color, random_color] if found == 2
-      new_guess = [random_color, guess[2], guess[3], guess[1]] if found == 3
-      new_guess = @guess.reverse if found == 4
+  def guess_with_fb(info, game)
+    copy_combos = combos.map(&:clone)
+    copy_combos.each do |combo|
+      new_info = game.feedback(combo, guess)
+      copy_combos.delete(combo) unless info == new_info
     end
 
+    table = {}
+    combos.each_with_index do |combo, index|
+      column = []
+      copy_combos.each do |copy_combo|
+        grade = game.feedback(copy_combo, combo)
+        column.push(grade)
+      end
+      table[index] = column
+    end
+
+    points = {}
+    table.each do |key, grades|
+      uniques = grades.uniq
+      counts = {}
+      uniques.each do |unique|
+        count = grades.count(unique)
+        counts[unique] = count
+      end
+      points[key] = counts
+    end
+
+    scores = {}
+    points.each { |key, counts| scores[key] = counts.values.max }
+
+    min_val = scores.values.min
+    guess_index = scores.key(min_val)
+
+    new_guess = combos[guess_index]
     puts "Computer guessed: #{new_guess}."
     new_guess
   end
@@ -159,7 +166,7 @@ class Player
     @guess = gets.chomp.gsub!(' ', '').split(',')
   end
 
-  def guess_with_fb(_)
+  def guess_with_fb(*)
     take_guess
   end
 
