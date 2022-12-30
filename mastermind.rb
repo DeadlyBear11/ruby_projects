@@ -1,18 +1,3 @@
-# Create class game
-# Game welcomes the player
-# Game has 6 colors.
-# Game asks for player's guess.
-# Game counts up to 12 player's guesses.
-# Game checks if player's guess is right.
-# Game ends if player's guesses > 12 or if player's guess is right.
-# Create class computer
-# Computer creates random 4 color code.
-# Computer gives feedback on player's guess.
-# Create class player
-# Player tries to guess code.
-
-require 'pry-byebug'
-
 class Game
   def initialize
     @turns = 12
