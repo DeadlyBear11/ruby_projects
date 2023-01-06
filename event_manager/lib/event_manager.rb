@@ -43,6 +43,20 @@ def count_hours(hours)
   hours_count
 end
 
+def count_weekdays(wdays)
+  wdays.map! do |day|
+    Date::DAYNAMES[day]
+  end
+
+  wdays_count = {}
+
+  wdays.each do |day|
+    wdays_count[day] = wdays_count[day].nil? ? 1 : wdays_count[day] + 1
+  end
+
+  wdays_count
+end
+
 def save_regist_report(form_report)
   filename = 'output/hours_report.html'
 
@@ -73,6 +87,7 @@ template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
 
 hours = []
+wdays = []
 
 contents.each do |row|
   id = row[0]
@@ -81,8 +96,12 @@ contents.each do |row|
   phone_number = clean_phone_number(row[:homephone])
   legislators = legislators_by_zipcode(zipcode)
   hour = row[:regdate].split(' ')[1].split(':')[0]
+  date = row[:regdate].split(' ')[0].split('/')
+  date_formated = Date.parse("20#{date[2]}/#{date[0]}/#{date[1]}").wday
 
   hours.push(hour)
+
+  wdays.push(date_formated)
 
   form_letter = erb_template.result(binding)
 
@@ -90,5 +109,6 @@ contents.each do |row|
 end
 
 hours_count = count_hours(hours)
+wdays_count = count_weekdays(wdays)
 form_report = erb_report.result(binding)
 save_regist_report(form_report)

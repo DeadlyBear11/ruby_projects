@@ -14,5 +14,14 @@
       </tr>
       <% end %>
   </table>
+  <table>
+    <th>Day</th><th>People registered</th>
+      <% wdays_count.each do |key, value| %>
+      <tr>
+        <td><%= "#{key}" %></td>
+        <td><%= "#{value}" %></td>
+      </tr>
+      <% end %>
+  </table>
   </body>
 </html>
