@@ -33,6 +33,24 @@ def legislators_by_zipcode(zip)
   end
 end
 
+def count_hours(hours)
+  hours_count = {}
+
+  hours.each do |hour|
+    hours_count[hour] = hours_count[hour].nil? ? 1 : hours_count[hour] + 1
+  end
+
+  hours_count
+end
+
+def save_regist_report(form_report)
+  filename = 'output/hours_report.html'
+
+  File.open(filename, 'w') do |file|
+    file.puts form_report
+  end
+end
+
 def save_thank_you_letter(id, form_letter)
   Dir.mkdir('output') unless Dir.exist?('output')
 
@@ -50,9 +68,11 @@ contents = CSV.open(
   headers: true,
   header_converters: :symbol
 )
-
+erb_report = ERB.new(File.read('regist_report.erb'))
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
+
+hours = []
 
 contents.each do |row|
   id = row[0]
@@ -60,8 +80,15 @@ contents.each do |row|
   zipcode = clean_zipcode(row[:zipcode])
   phone_number = clean_phone_number(row[:homephone])
   legislators = legislators_by_zipcode(zipcode)
+  hour = row[:regdate].split(' ')[1].split(':')[0]
+
+  hours.push(hour)
 
   form_letter = erb_template.result(binding)
 
   save_thank_you_letter(id, form_letter)
 end
+
+hours_count = count_hours(hours)
+form_report = erb_report.result(binding)
+save_regist_report(form_report)

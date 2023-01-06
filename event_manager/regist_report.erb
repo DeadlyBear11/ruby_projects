@@ -1,0 +1,18 @@
+<html>
+  <head>
+    <meta charset='UTF-8'>
+    <title>Registration Report</title>
+  </head>
+  <body>
+  <h1>Registration Hours Report</h1>
+  <table>
+    <th>Hour</th><th>People registered</th>
+      <% hours_count.each do |key, value| %>
+      <tr>
+        <td><%= "#{key}" %></td>
+        <td><%= "#{value}" %></td>
+      </tr>
+      <% end %>
+  </table>
+  </body>
+</html>
