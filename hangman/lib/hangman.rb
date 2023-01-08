@@ -116,7 +116,7 @@ class Game
     return unless @chances.zero?
 
     puts ' '
-    puts "You're out of chances! You loose!"
+    puts "You're out of chances! You lose!"
     @end = true
   end
 
