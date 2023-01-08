@@ -26,6 +26,8 @@ class Game
 
   attr_reader :end
 
+  SAVEFILE = 'saved_game/saved.json'.freeze
+
   def explain_rules
     puts '|=======================|'
     puts '|==Welcome to Hangman!==|'
@@ -96,6 +98,9 @@ class Game
   def check_end
     check_win
     check_lose
+    return unless @end
+
+    File.delete(SAVEFILE) if File.exist?(SAVEFILE)
   end
 
   def saved_end
@@ -107,20 +112,18 @@ class Game
   def save_game
     Dir.mkdir('saved_game') unless Dir.exist?('saved_game')
 
-    filename = 'saved_game/saved.json'
-
     hash = { word: @word, chances: @chances, wrong_letters: @wrong_letters, spaces: @spaces, end: @end }
 
-    File.open(filename, 'w') { |file| File.write(file, JSON.generate(hash)) }
+    File.open(SAVEFILE, 'w') { |file| File.write(file, JSON.generate(hash)) }
     saved_end
   end
 
   def ask_to_save
+    return if @end
+
     print 'Would you like to save the game? y/n: '
     answer = gets.chomp.downcase
-    return if %w[n no].include?(answer)
-
-    save_game
+    save_game if %w[y yes].include?(answer)
   end
 end
 
