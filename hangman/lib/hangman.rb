@@ -24,7 +24,7 @@ class Game
     @end = false
   end
 
-  attr_reader :end
+  attr_reader :end, :word
 
   SAVEFILE = 'saved_game/saved.json'.freeze
 
@@ -43,14 +43,39 @@ class Game
     end
   end
 
+  def assing_saved_attr
+    game_attr = JSON.parse(File.read(SAVEFILE))
+
+    @word = game_attr['word']
+    @chances = game_attr['chances']
+    @wrong_letters = game_attr['wrong_letter'] if game_attr['wrong_letter']
+    @spaces = game_attr['spaces']
+
+    display_spaces
+  end
+
+  def ask_to_play_saved
+    return unless File.exist?(SAVEFILE)
+
+    print "There's a saved game. Would you like to continue it? y/n: "
+    answer = gets.chomp.downcase
+    return unless %w[y yes].include?(answer)
+
+    assing_saved_attr
+  end
+
   def choose_word
     @word = @words.sample
+  end
+
+  def display_spaces
+    puts @spaces.join
   end
 
   def create_spaces
     @spaces = []
     @word.length.times { @spaces.push('_ ') }
-    puts @spaces.join
+    display_spaces
   end
 
   def update_spaces(letter, index)
@@ -76,7 +101,7 @@ class Game
     else
       update_wrongs(letter)
     end
-    puts @spaces.join
+    display_spaces
   end
 
   def check_win
@@ -112,7 +137,7 @@ class Game
   def save_game
     Dir.mkdir('saved_game') unless Dir.exist?('saved_game')
 
-    hash = { word: @word, chances: @chances, wrong_letters: @wrong_letters, spaces: @spaces, end: @end }
+    hash = { word: @word, chances: @chances, wrong_letters: @wrong_letters, spaces: @spaces }
 
     File.open(SAVEFILE, 'w') { |file| File.write(file, JSON.generate(hash)) }
     saved_end
@@ -143,8 +168,12 @@ game = Game.new
 player = Player.new
 game.explain_rules
 game.load_dic
-game.choose_word
-game.create_spaces
+game.ask_to_play_saved
+
+unless game.word
+  game.choose_word
+  game.create_spaces
+end
 
 until game.end
   letter = player.choose_letter
