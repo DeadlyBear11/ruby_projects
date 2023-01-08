@@ -14,6 +14,8 @@
 # If chances is zero, game ends and player looses
 # Game-loop ends
 
+require 'json'
+
 class Game
   def initialize
     @chances = 6
@@ -41,7 +43,6 @@ class Game
 
   def choose_word
     @word = @words.sample
-    p @word
   end
 
   def create_spaces
@@ -70,10 +71,10 @@ class Game
       arr_word.each_with_index do |char, index|
         update_spaces(letter, index) if char == letter
       end
-      puts @spaces.join
     else
       update_wrongs(letter)
     end
+    puts @spaces.join
   end
 
   def check_win
@@ -95,6 +96,31 @@ class Game
   def check_end
     check_win
     check_lose
+  end
+
+  def saved_end
+    puts ' '
+    puts 'Game saved, see you next time!'
+    @end = true
+  end
+
+  def save_game
+    Dir.mkdir('saved_game') unless Dir.exist?('saved_game')
+
+    filename = 'saved_game/saved.json'
+
+    hash = { word: @word, chances: @chances, wrong_letters: @wrong_letters, spaces: @spaces, end: @end }
+
+    File.open(filename, 'w') { |file| File.write(file, JSON.generate(hash)) }
+    saved_end
+  end
+
+  def ask_to_save
+    print 'Would you like to save the game? y/n: '
+    answer = gets.chomp.downcase
+    return if %w[n no].include?(answer)
+
+    save_game
   end
 end
 
@@ -121,4 +147,5 @@ until game.end
   letter = player.choose_letter
   game.check_letter(letter)
   game.check_end
+  game.ask_to_save
 end
