@@ -18,6 +18,7 @@ class Game
   def initialize
     @chances = 6
     @words = []
+    @wrong_letters = []
   end
 
   def explain_rules
@@ -37,13 +38,37 @@ class Game
 
   def choose_word
     @word = @words.sample
+    p @word
   end
 
-  def display_spaces
+  def create_spaces
     @spaces = []
     @word.length.times { @spaces.push('_ ') }
-    @spaces = @spaces.join
-    puts @spaces
+    puts @spaces.join
+  end
+
+  def update_spaces(letter, index)
+    @spaces[index] = letter
+  end
+
+  def update_wrongs(letter)
+    @wrong_letters.push(letter)
+    @chances -= 1
+    print 'Wrong letters: '
+    @wrong_letters.each { |char| print "#{char} " }
+    puts "Chances left: #{@chances}."
+  end
+
+  def check_letter(letter)
+    arr_word = @word.split('')
+    if arr_word.include?(letter)
+      arr_word.each_with_index do |char, index|
+        update_spaces(letter, index) if char == letter
+      end
+      puts @spaces.join
+    else
+      update_wrongs(letter)
+    end
   end
 end
 
@@ -63,5 +88,6 @@ player = Player.new
 game.explain_rules
 game.load_dic
 game.choose_word
-game.display_spaces
-player.choose_letter
+game.create_spaces
+letter = player.choose_letter
+game.check_letter(letter)
