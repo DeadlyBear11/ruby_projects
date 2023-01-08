@@ -19,7 +19,10 @@ class Game
     @chances = 6
     @words = []
     @wrong_letters = []
+    @end = false
   end
+
+  attr_reader :end
 
   def explain_rules
     puts '|=======================|'
@@ -54,8 +57,10 @@ class Game
   def update_wrongs(letter)
     @wrong_letters.push(letter)
     @chances -= 1
+    puts '~~~~~~~~~~~~~~'
     print 'Wrong letters: '
     @wrong_letters.each { |char| print "#{char} " }
+    puts ' '
     puts "Chances left: #{@chances}."
   end
 
@@ -70,6 +75,27 @@ class Game
       update_wrongs(letter)
     end
   end
+
+  def check_win
+    return unless @spaces.join == @word
+
+    puts ' '
+    puts 'Congratulations! You win!'
+    @end = true
+  end
+
+  def check_lose
+    return unless @chances.zero?
+
+    puts ' '
+    puts "You're out of chances! You loose!"
+    @end = true
+  end
+
+  def check_end
+    check_win
+    check_lose
+  end
 end
 
 class Player
@@ -78,6 +104,7 @@ class Player
   attr_reader :letter
 
   def choose_letter
+    puts ' '
     print 'Choose a letter: '
     @letter = gets.chomp.downcase
   end
@@ -89,5 +116,9 @@ game.explain_rules
 game.load_dic
 game.choose_word
 game.create_spaces
-letter = player.choose_letter
-game.check_letter(letter)
+
+until game.end
+  letter = player.choose_letter
+  game.check_letter(letter)
+  game.check_end
+end
