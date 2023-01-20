@@ -16,27 +16,53 @@ class Node
 end
 
 class LinkedList
-  attr_reader :length
+  attr_reader :size, :value
+  attr_accessor :head
 
   def initialize
-    @head = 0
-    @tail = nil
-    @length = 0
+    @head = nil
+    @size = 0
   end
 
-  def create_node(value, next_node)
-    @length += 1
+  def create_node(value = nil, next_node = nil)
+    @size += 1
     Node.new(value, next_node)
   end
 
   def empty?
-    length.zero?
+    size.zero?
+  end
+
+  def begin_list(value)
+    @head = create_node(value)
+  end
+
+  def append(value)
+    if empty?
+      begin_list(value)
+    else
+      tail.next_node = create_node(value)
+    end
+  end
+
+  def tail(node = head)
+    return node if last_node?(node)
+
+    tail(node.next_node)
+  end
+
+  def last_node?(node)
+    return true if node.next_node.nil?
+
+    false
   end
 end
 
 my_list = LinkedList.new
-p my_list.length
-p my_list.empty?
-p my_list.create_node(3000, "yeah")
-p my_list.length
-p my_list.empty?
+puts "The list is empty? #{my_list.empty?}. It has #{my_list.size} nodes."
+my_list.append(3000)
+puts "The list is empty? #{my_list.empty?}. It has #{my_list.size} nodes."
+my_list.append(6000)
+my_list.append(9000)
+puts "The list is empty? #{my_list.empty?}. It has #{my_list.size} nodes."
+puts "The head is #{my_list.head.value}. The tail is #{my_list.tail.value}."
