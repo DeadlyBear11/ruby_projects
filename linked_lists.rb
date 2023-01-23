@@ -1,8 +1,3 @@
-# pop() removes de last element from the list.
-# For this I need:
-# Change the next_node attribute of the second to last element to nil.
-# Return the last node.
-
 class Node
   attr_reader :value
   attr_accessor :next_node
@@ -91,21 +86,31 @@ class LinkedList
     new_last.next_node = nil
     popped
   end
+
+  def contains?(value, node = head)
+    return true if value == node.value
+
+    return false if node.next_node.nil?
+
+    contains?(value, node.next_node)
+  end
 end
 
 my_list = LinkedList.new
 puts "Is the list empty? #{my_list.empty?}. It has #{my_list.size} nodes."
 my_list.append(3000)
-p my_list.values
+puts "Append a node with the value 3000: #{my_list.values}."
 puts "Is the list empty? #{my_list.empty?}. It has #{my_list.size} nodes."
 my_list.append(6000)
 my_list.append(9000)
-p my_list.values
+puts "Append two nodes with values 6000 and 9000: #{my_list.values}."
 puts "The list has #{my_list.size} nodes."
 my_list.prepend(2000)
-p my_list.values
+puts "Prepend a node with the value 2000: #{my_list.values}."
 puts "The list has #{my_list.size} nodes."
 puts "The head points to #{my_list.head.value}. The tail comes after #{my_list.tail.value}."
 puts "You asked for the node at index 1 with value: #{my_list.at(1).value}."
 puts "Value of node popped: #{my_list.pop.value}."
 puts "Linked list after pop: #{my_list.values}."
+puts "Does my list contain the value 3000? #{my_list.contains?(3000)}."
+puts "Does my list contain the value 9000? #{my_list.contains?(9000)}."
