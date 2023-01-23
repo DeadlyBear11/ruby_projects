@@ -69,15 +69,15 @@ class LinkedList
   end
 
   def at(index)
-    @iterator = 0 if @iterator
-    iter(index)
+    reset_iter
+    search_idx(index)
   end
 
-  def iter(index, node = head)
+  def search_idx(index, node = head)
     @iterator += 1
     return node if index + 1 == @iterator
 
-    iter(index, node.next_node)
+    search_idx(index, node.next_node)
   end
 
   def pop
@@ -93,6 +93,24 @@ class LinkedList
     return false if node.next_node.nil?
 
     contains?(value, node.next_node)
+  end
+
+  def find(value)
+    reset_iter
+    search_val(value)
+  end
+
+  def search_val(value, node = head)
+    @iterator += 1
+    return @iterator - 1 if value == node.value
+
+    return nil if node.next_node.nil?
+
+    search_val(value, node.next_node)
+  end
+
+  def reset_iter
+    @iterator = 0 if @iterator
   end
 end
 
@@ -114,3 +132,6 @@ puts "Value of node popped: #{my_list.pop.value}."
 puts "Linked list after pop: #{my_list.values}."
 puts "Does my list contain the value 3000? #{my_list.contains?(3000)}."
 puts "Does my list contain the value 9000? #{my_list.contains?(9000)}."
+puts "Find the index of value 6000: #{my_list.find(6000)}."
+print 'Find the index of value 8000: '
+p my_list.find(8000)
