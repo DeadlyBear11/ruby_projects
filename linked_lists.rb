@@ -1,7 +1,6 @@
-# prepend(value) adds a new value containing value to the start of the list.
+# at(index) returns the node at the given index.
 # For this I need:
-# For the head to point to the new node.
-# For the new node to have a next_node attribute pointing to the last head.
+# Iterate over the elements and return at index.
 
 class Node
   attr_reader :value
@@ -21,6 +20,7 @@ class LinkedList
     @head = nil
     @size = 0
     @values = []
+    @iterator = 0
   end
 
   def create_node(value = nil, next_node = nil)
@@ -71,6 +71,18 @@ class LinkedList
 
     push_values(node.next_node)
   end
+
+  def at(index)
+    @iterator = 0 if @iterator
+    iter(index)
+  end
+
+  def iter(index, node = head)
+    @iterator += 1
+    return node if index + 1 == @iterator
+
+    iter(index, node.next_node)
+  end
 end
 
 my_list = LinkedList.new
@@ -86,3 +98,4 @@ my_list.prepend(2000)
 p my_list.values
 puts "The list has #{my_list.size} nodes."
 puts "The head is #{my_list.head.value}. The tail is #{my_list.tail.value}."
+puts "You asked for: #{my_list.at(1)}."
