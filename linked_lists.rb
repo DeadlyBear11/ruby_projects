@@ -1,6 +1,7 @@
-# at(index) returns the node at the given index.
+# pop() removes de last element from the list.
 # For this I need:
-# Iterate over the elements and return at index.
+# Change the next_node attribute of the second to last element to nil.
+# Return the last node.
 
 class Node
   attr_reader :value
@@ -83,6 +84,13 @@ class LinkedList
 
     iter(index, node.next_node)
   end
+
+  def pop
+    popped = at(size - 1)
+    new_last = at(size - 2)
+    new_last.next_node = nil
+    popped
+  end
 end
 
 my_list = LinkedList.new
@@ -97,5 +105,7 @@ puts "The list has #{my_list.size} nodes."
 my_list.prepend(2000)
 p my_list.values
 puts "The list has #{my_list.size} nodes."
-puts "The head is #{my_list.head.value}. The tail is #{my_list.tail.value}."
-puts "You asked for: #{my_list.at(1)}."
+puts "The head points to #{my_list.head.value}. The tail comes after #{my_list.tail.value}."
+puts "You asked for the node at index 1 with value: #{my_list.at(1).value}."
+puts "Value of node popped: #{my_list.pop.value}."
+puts "Linked list after pop: #{my_list.values}."
